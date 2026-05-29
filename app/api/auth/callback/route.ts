@@ -1,10 +1,10 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { type NextRequest } from "next/server";
 import { sealData } from "iron-session";
 import { sessionOptions, type SessionData } from "@/lib/session";
 
 export const runtime = "nodejs";
 
-const SESSION_TTL = 60 * 60 * 24 * 14; // 14 days — matches iron-session default
+const SESSION_TTL = 60 * 60 * 24 * 14; // 14 days
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,23 +38,32 @@ export async function GET(request: NextRequest) {
     const sessionData: SessionData = { steamId, isLoggedIn: true };
     const sealed = await sealData(sessionData, { password: sessionOptions.password, ttl: SESSION_TTL });
 
-    // Return a 200 HTML page rather than a redirect for two reasons:
-    //   1. Netlify's CDN strips Set-Cookie from redirect responses, so the session
-    //      cookie never reaches the browser when we use NextResponse.redirect().
-    //   2. location.replace('/dashboard') rewrites the history entry, so the browser
-    //      URL becomes /dashboard with no openid query params left behind.
-    const response = new NextResponse(
+    // Build Set-Cookie manually on a plain Response to avoid any NextResponse
+    // abstraction that could silently drop the header. The cookie package is
+    // available (iron-session dependency) but the values are safe to inline.
+    const cookieHeader = [
+      `${sessionOptions.cookieName}=${sealed}`,
+      `Max-Age=${SESSION_TTL}`,
+      `Path=/`,
+      `HttpOnly`,
+      `Secure`,
+      `SameSite=Lax`,
+    ].join("; ");
+
+    // Return a 200 HTML page so the Set-Cookie header is on a non-redirect response
+    // (Netlify/CDN proxies strip Set-Cookie from 3xx responses). location.replace()
+    // rewrites the history entry so the browser URL becomes /dashboard cleanly.
+    return new Response(
       `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><script>location.replace('/dashboard');</script></body></html>`,
-      { status: 200, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } }
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "Cache-Control": "no-store",
+          "Set-Cookie": cookieHeader,
+        },
+      }
     );
-    response.cookies.set(sessionOptions.cookieName, sealed, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      maxAge: SESSION_TTL,
-      path: "/",
-    });
-    return response;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return new Response(`Callback error: ${message}`, { status: 500 });
