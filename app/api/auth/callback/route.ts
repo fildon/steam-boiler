@@ -38,10 +38,7 @@ export async function GET(request: NextRequest) {
     const sessionData: SessionData = { steamId, isLoggedIn: true };
     const sealed = await sealData(sessionData, { password: sessionOptions.password, ttl: SESSION_TTL });
 
-    // Build Set-Cookie manually on a plain Response to avoid any NextResponse
-    // abstraction that could silently drop the header. The cookie package is
-    // available (iron-session dependency) but the values are safe to inline.
-    const cookieHeader = [
+    const sessionCookie = [
       `${sessionOptions.cookieName}=${sealed}`,
       `Max-Age=${SESSION_TTL}`,
       `Path=/`,
@@ -50,20 +47,29 @@ export async function GET(request: NextRequest) {
       `SameSite=Lax`,
     ].join("; ");
 
-    // Return a 200 HTML page so the Set-Cookie header is on a non-redirect response
-    // (Netlify/CDN proxies strip Set-Cookie from 3xx responses). location.replace()
-    // rewrites the history entry so the browser URL becomes /dashboard cleanly.
-    return new Response(
-      `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><script>location.replace('/dashboard');</script></body></html>`,
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "text/html; charset=utf-8",
-          "Cache-Control": "no-store",
-          "Set-Cookie": cookieHeader,
-        },
-      }
-    );
+    // Non-HttpOnly probe cookie — readable via document.cookie in the browser.
+    // If this appears in document.cookie, Set-Cookie is reaching the browser.
+    // Remove once the session persistence issue is resolved.
+    const probeCookie = `sb-probe=1; Max-Age=60; Path=/; SameSite=Lax`;
+
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head><body>
+<pre id="out">checking cookies...</pre>
+<script>
+  document.getElementById('out').textContent =
+    'document.cookie = ' + (document.cookie || '(empty)');
+  setTimeout(function() { location.replace('/dashboard'); }, 4000);
+</script>
+</body></html>`;
+
+    const headers = new Headers({
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-store",
+    });
+    headers.append("Set-Cookie", sessionCookie);
+    headers.append("Set-Cookie", probeCookie);
+
+    return new Response(html, { status: 200, headers });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return new Response(`Callback error: ${message}`, { status: 500 });
