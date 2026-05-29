@@ -1,12 +1,14 @@
-import { cookies } from "next/headers";
+import { type NextRequest } from "next/server";
 import { unsealData } from "iron-session";
 import { sessionOptions } from "@/lib/session";
 
 export const runtime = "nodejs";
 
-export async function GET() {
-  const cookieStore = await cookies();
-  const raw = cookieStore.get(sessionOptions.cookieName);
+export async function GET(request: NextRequest) {
+  // Read directly from the HTTP request to bypass any next/headers abstraction.
+  const allCookies = request.cookies.getAll();
+  const raw = request.cookies.get(sessionOptions.cookieName);
+  const probe = request.cookies.get("sb-probe");
 
   let unsealOk = false;
   let unsealError: string | null = null;
@@ -27,11 +29,10 @@ export async function GET() {
     }
   }
 
-  const probe = cookieStore.get("sb-probe");
-
   return Response.json({
     hasCookie: !!raw,
     hasProbe: !!probe,
+    cookieNames: allCookies.map((c) => c.name),
     cookieLength: raw?.value.length ?? 0,
     unsealOk,
     unsealError,
