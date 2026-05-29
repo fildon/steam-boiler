@@ -120,6 +120,7 @@ export function GameTable({
                       className="flex items-center gap-3 hover:text-blue-400 transition-colors"
                     >
                       {game.img_icon_url && (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={`https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`}
                           alt=""

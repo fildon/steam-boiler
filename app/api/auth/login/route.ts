@@ -1,8 +1,8 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const base = process.env.NEXT_PUBLIC_BASE_URL;
   const params = new URLSearchParams({
     "openid.ns": "http://specs.openid.net/auth/2.0",

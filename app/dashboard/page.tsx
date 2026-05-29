@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/session";
 import { getPlayerSummary, getSteamLevel, getOwnedGames, getPlayerAchievements, type AchievementStats } from "@/lib/steam-api";
-import { RandomGameBanner } from "./RandomGameBanner";
+import { RandomGameBannerWrapper } from "./RandomGameBannerWrapper";
 import { GameTable } from "./GameTable";
 
 const ACHIEVEMENT_CONCURRENCY = 10;
@@ -52,6 +52,7 @@ export default async function Dashboard() {
       <main className="max-w-4xl mx-auto px-6 py-10 flex flex-col gap-10">
         {/* Profile card */}
         <div className="flex items-center gap-5">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={profile.avatarfull} alt="avatar" className="w-20 h-20 rounded-full" />
           <div>
             <h1 className="text-2xl font-bold">{profile.personaname}</h1>
@@ -69,7 +70,7 @@ export default async function Dashboard() {
         </div>
 
         {/* Random game picker */}
-        {games.length > 0 && <RandomGameBanner games={games} />}
+        {games.length > 0 && <RandomGameBannerWrapper games={games} />}
 
         <GameTable games={games} achievements={achievements} />
       </main>
