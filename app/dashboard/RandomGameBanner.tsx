@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { OwnedGame } from "@/lib/steam-api";
 
 function pickRandom(games: OwnedGame[]): OwnedGame {
@@ -8,16 +8,24 @@ function pickRandom(games: OwnedGame[]): OwnedGame {
 }
 
 export function RandomGameBanner({ games }: { games: OwnedGame[] }) {
-  const [game, setGame] = useState<OwnedGame>(() => pickRandom(games));
+  const [game, setGame] = useState<OwnedGame | null>(null);
+
+  // Only pick a random game client-side to avoid SSR/hydration mismatch
+  useEffect(() => {
+    setGame(pickRandom(games));
+  }, [games]);
 
   const shuffle = useCallback(() => {
-    // Avoid picking the same game twice in a row
-    let next = pickRandom(games);
-    while (next.appid === game.appid && games.length > 1) {
-      next = pickRandom(games);
-    }
-    setGame(next);
-  }, [game, games]);
+    setGame((current) => {
+      let next = pickRandom(games);
+      while (next.appid === current?.appid && games.length > 1) {
+        next = pickRandom(games);
+      }
+      return next;
+    });
+  }, [games]);
+
+  if (!game) return null;
 
   const hours = (game.playtime_forever / 60).toFixed(1);
 
