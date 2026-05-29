@@ -27,8 +27,11 @@ export async function GET() {
     }
   }
 
+  const probe = cookieStore.get("sb-probe");
+
   return Response.json({
     hasCookie: !!raw,
+    hasProbe: !!probe,
     cookieLength: raw?.value.length ?? 0,
     unsealOk,
     unsealError,
