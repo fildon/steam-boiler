@@ -48,6 +48,13 @@ export default async function Dashboard() {
           </div>
         </div>
 
+        {/* Compare link */}
+        <div className="flex justify-end -mt-6">
+          <a href="/dashboard/compare" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
+            Compare with a friend →
+          </a>
+        </div>
+
         {/* Quick stats */}
         <div className="grid grid-cols-3 gap-4">
           <Stat label="Games owned" value={games.length.toLocaleString()} />

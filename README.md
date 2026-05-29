@@ -76,8 +76,3 @@ Steam API keys are registered to a domain. Update yours at https://steamcommunit
 
 ---
 
-## TODO
-
-- [ ] **Search / filter** — client-side text input above the game table to filter by name; toggle to hide unplayed games
-- [ ] **Forgotten games** — surface games with 60+ minutes played but not touched in 2+ years, shown as a section near the random-picker
-- [ ] **Friend comparison** — accept a second public Steam ID and show shared games, games unique to each library, and head-to-head hour counts

@@ -35,6 +35,8 @@ function formatLastPlayed(ts: number): string {
 export function GameTable({ games }: { games: OwnedGame[] }) {
   const [sortKey, setSortKey] = useState<SortKey>("playtime");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [query, setQuery] = useState("");
+  const [hideUnplayed, setHideUnplayed] = useState(false);
 
   function handleSort(key: SortKey) {
     if (key === sortKey) {
@@ -46,10 +48,15 @@ export function GameTable({ games }: { games: OwnedGame[] }) {
   }
 
   const sorted = sortGames(games, sortKey, sortDir);
+  const filtered = sorted.filter((g) => {
+    if (hideUnplayed && g.playtime_forever === 0) return false;
+    if (query && !g.name.toLowerCase().includes(query.toLowerCase())) return false;
+    return true;
+  });
 
   return (
     <section>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <h2 className="text-lg font-semibold">Library</h2>
         <div className="flex items-center gap-2">
           <span className="text-xs text-slate-500 mr-1">Sort by</span>
@@ -72,6 +79,26 @@ export function GameTable({ games }: { games: OwnedGame[] }) {
         </div>
       </div>
 
+      <div className="flex items-center gap-3 mb-4">
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Filter by name…"
+          className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-slate-500"
+        />
+        <button
+          onClick={() => setHideUnplayed((h) => !h)}
+          className={`text-xs px-3 py-1.5 rounded-full border transition-colors whitespace-nowrap ${
+            hideUnplayed
+              ? "bg-blue-600 border-blue-600 text-white"
+              : "border-slate-600 text-slate-400 hover:text-white hover:border-slate-400"
+          }`}
+        >
+          Hide unplayed
+        </button>
+      </div>
+
       <div className="rounded-lg border border-slate-700 overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-slate-800 text-slate-400 text-xs uppercase">
@@ -83,37 +110,45 @@ export function GameTable({ games }: { games: OwnedGame[] }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800">
-            {sorted.map((game, i) => (
-              <tr key={game.appid} className="hover:bg-slate-800/50 transition-colors">
-                <td className="px-4 py-3 text-slate-500">{i + 1}</td>
-                <td className="px-4 py-3">
-                  <a
-                    href={`https://store.steampowered.com/app/${game.appid}/`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 hover:text-blue-400 transition-colors"
-                  >
-                    {game.img_icon_url && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={`https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`}
-                        alt=""
-                        className="w-8 h-8 rounded"
-                      />
-                    )}
-                    <span>{game.name}</span>
-                  </a>
-                </td>
-                <td className="px-4 py-3 text-right text-slate-300">
-                  {game.playtime_forever === 0
-                    ? <span className="text-slate-600">—</span>
-                    : (game.playtime_forever / 60).toFixed(1)}
-                </td>
-                <td className="px-4 py-3 text-right text-slate-400 text-xs">
-                  {formatLastPlayed(game.rtime_last_played)}
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-slate-500">
+                  No games match your filter.
                 </td>
               </tr>
-            ))}
+            ) : (
+              filtered.map((game, i) => (
+                <tr key={game.appid} className="hover:bg-slate-800/50 transition-colors">
+                  <td className="px-4 py-3 text-slate-500">{i + 1}</td>
+                  <td className="px-4 py-3">
+                    <a
+                      href={`https://store.steampowered.com/app/${game.appid}/`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 hover:text-blue-400 transition-colors"
+                    >
+                      {game.img_icon_url && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={`https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`}
+                          alt=""
+                          className="w-8 h-8 rounded"
+                        />
+                      )}
+                      <span>{game.name}</span>
+                    </a>
+                  </td>
+                  <td className="px-4 py-3 text-right text-slate-300">
+                    {game.playtime_forever === 0
+                      ? <span className="text-slate-600">—</span>
+                      : (game.playtime_forever / 60).toFixed(1)}
+                  </td>
+                  <td className="px-4 py-3 text-right text-slate-400 text-xs">
+                    {formatLastPlayed(game.rtime_last_played)}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
