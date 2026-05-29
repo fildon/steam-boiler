@@ -41,7 +41,7 @@ function achievementPct(stats: AchievementStats | undefined): number {
 
 function formatLastPlayed(ts: number): string {
   if (ts === 0) return "Never";
-  return new Date(ts * 1000).toLocaleDateString(undefined, {
+  return new Date(ts * 1000).toLocaleDateString("en-GB", {
     year: "numeric",
     month: "short",
     day: "numeric",
