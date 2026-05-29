@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/session";
 import { getPlayerSummary, getSteamLevel, getOwnedGames } from "@/lib/steam-api";
+import { RandomGameBanner } from "./RandomGameBanner";
 
 export default async function Dashboard() {
   const session = await getSession();
@@ -46,6 +47,9 @@ export default async function Dashboard() {
           <Stat label="Hours played" value={totalHours.toLocaleString()} />
           <Stat label="Never played" value={neverPlayed.toLocaleString()} />
         </div>
+
+        {/* Random game picker */}
+        {games.length > 0 && <RandomGameBanner games={games} />}
 
         {/* Games table */}
         <section>

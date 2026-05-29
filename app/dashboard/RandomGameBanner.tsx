@@ -1,0 +1,46 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import type { OwnedGame } from "@/lib/steam-api";
+
+function pickRandom(games: OwnedGame[]): OwnedGame {
+  return games[Math.floor(Math.random() * games.length)];
+}
+
+export function RandomGameBanner({ games }: { games: OwnedGame[] }) {
+  const [game, setGame] = useState<OwnedGame>(() => pickRandom(games));
+
+  const shuffle = useCallback(() => {
+    // Avoid picking the same game twice in a row
+    let next = pickRandom(games);
+    while (next.appid === game.appid && games.length > 1) {
+      next = pickRandom(games);
+    }
+    setGame(next);
+  }, [game, games]);
+
+  const hours = (game.playtime_forever / 60).toFixed(1);
+
+  return (
+    <div className="bg-slate-800 border border-slate-700 rounded-lg px-5 py-4 flex items-center gap-4">
+      <img
+        src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/capsule_184x69.jpg`}
+        alt=""
+        className="w-24 h-9 rounded object-cover shrink-0"
+      />
+      <div className="flex-1 min-w-0">
+        <p className="text-xs text-slate-400 uppercase tracking-wide mb-0.5">Play something random</p>
+        <p className="font-semibold text-white truncate">{game.name}</p>
+        <p className="text-sm text-slate-400">
+          {game.playtime_forever === 0 ? "Never played" : `${hours} hrs played`}
+        </p>
+      </div>
+      <button
+        onClick={shuffle}
+        className="shrink-0 text-sm font-medium text-slate-300 hover:text-white bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg transition-colors"
+      >
+        Shuffle
+      </button>
+    </div>
+  );
+}
