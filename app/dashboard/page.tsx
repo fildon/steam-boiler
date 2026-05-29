@@ -48,8 +48,14 @@ export default async function Dashboard() {
           </div>
         </div>
 
-        {/* Compare link */}
-        <div className="flex justify-end -mt-6">
+        {/* Quick links */}
+        <div className="flex justify-end gap-6 -mt-6">
+          <a href={`/player/${session.steamId}`} className="text-sm text-slate-400 hover:text-slate-300 transition-colors">
+            Share your stats →
+          </a>
+          <a href="/dashboard/friends" className="text-sm text-slate-400 hover:text-slate-300 transition-colors">
+            Friends leaderboard →
+          </a>
           <a href="/dashboard/compare" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
             Compare with a friend →
           </a>

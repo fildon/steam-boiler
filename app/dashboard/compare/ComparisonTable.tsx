@@ -1,16 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import type { SharedGame } from "@/lib/comparison";
 
-export interface SharedGame {
-  appid: number;
-  name: string;
-  img_icon_url: string;
-  myMinutes: number;
-  friendMinutes: number;
-  differenceMinutes: number;
-  winner: "me" | "friend" | "tie";
-}
+export type { SharedGame };
 
 type SortKey = "difference" | "my_hours" | "friend_hours";
 type SortDir = "asc" | "desc";

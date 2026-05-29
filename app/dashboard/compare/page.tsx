@@ -3,48 +3,9 @@ export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { getPlayerSummary, getOwnedGames, type OwnedGame, type PlayerSummary } from "@/lib/steam-api";
+import { computeComparison } from "@/lib/comparison";
 import { SteamIdForm } from "./SteamIdForm";
-import { ComparisonTable, type SharedGame } from "./ComparisonTable";
-
-interface ComparisonResult {
-  shared: SharedGame[];
-  myExclusiveCount: number;
-  friendExclusiveCount: number;
-  myTotalHours: number;
-  friendTotalHours: number;
-}
-
-function computeComparison(myGames: OwnedGame[], friendGames: OwnedGame[]): ComparisonResult {
-  const friendMap = new Map(friendGames.map((g) => [g.appid, g]));
-  const myMap = new Map(myGames.map((g) => [g.appid, g]));
-
-  const shared: SharedGame[] = [];
-  let myExclusiveCount = 0;
-
-  for (const game of myGames) {
-    const friendGame = friendMap.get(game.appid);
-    if (friendGame) {
-      const diff = game.playtime_forever - friendGame.playtime_forever;
-      shared.push({
-        appid: game.appid,
-        name: game.name,
-        img_icon_url: game.img_icon_url,
-        myMinutes: game.playtime_forever,
-        friendMinutes: friendGame.playtime_forever,
-        differenceMinutes: diff,
-        winner: diff > 0 ? "me" : diff < 0 ? "friend" : "tie",
-      });
-    } else {
-      myExclusiveCount++;
-    }
-  }
-
-  const friendExclusiveCount = friendGames.filter((g) => !myMap.has(g.appid)).length;
-  const myTotalHours = Math.round(myGames.reduce((s, g) => s + g.playtime_forever, 0) / 60);
-  const friendTotalHours = Math.round(friendGames.reduce((s, g) => s + g.playtime_forever, 0) / 60);
-
-  return { shared, myExclusiveCount, friendExclusiveCount, myTotalHours, friendTotalHours };
-}
+import { ComparisonTable } from "./ComparisonTable";
 
 function ProfileCard({ profile, totalHours, gameCount, label }: {
   profile: PlayerSummary; totalHours: number; gameCount: number; label: string;
@@ -105,6 +66,9 @@ export default async function ComparePage({
 
   const friendName = friendProfile?.personaname ?? "Friend";
   const friendPrivate = validId && friendProfile !== null && friendGames.length === 0;
+  const shareUrl = comparison && validId
+    ? `${process.env.NEXT_PUBLIC_BASE_URL}/compare/${session.steamId}/${validId}`
+    : null;
 
   return (
     <div className="min-h-screen bg-slate-900 text-white">
@@ -148,6 +112,13 @@ export default async function ComparePage({
               <Stat label="Only you own" value={comparison.myExclusiveCount.toLocaleString()} />
               <Stat label="Only they own" value={comparison.friendExclusiveCount.toLocaleString()} />
             </div>
+
+            {shareUrl && (
+              <div className="flex items-center gap-3 text-sm">
+                <span className="text-slate-400">Shareable link:</span>
+                <a href={shareUrl} className="text-blue-400 hover:text-blue-300 transition-colors truncate">{shareUrl}</a>
+              </div>
+            )}
 
             {comparison.shared.length === 0 ? (
               <p className="text-slate-400">You share no games in common.</p>
