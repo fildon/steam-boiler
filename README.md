@@ -24,6 +24,23 @@ npm run dev
 
 Open http://localhost:3000 and sign in with Steam.
 
+## Deploying to Netlify
+
+The app is deployed at `steam-boiler.rupertmckay.com` via Netlify.
+
+1. Push to GitHub and connect the repo in the Netlify dashboard
+2. Build settings are in `netlify.toml` — Netlify picks them up automatically
+3. Set these environment variables in **Netlify → Site → Environment variables**:
+   - `STEAM_API_KEY`
+   - `SESSION_SECRET`
+   - `NEXT_PUBLIC_BASE_URL` → `https://steam-boiler.rupertmckay.com`
+4. Add a custom domain in **Netlify → Site → Domain management** → add `steam-boiler.rupertmckay.com`
+5. In your DNS provider, add a `CNAME` record: `steam-boiler` → `<your-netlify-site>.netlify.app`
+
+Netlify provisions HTTPS automatically once the DNS propagates.
+
+> **Steam API key domain** — if your Steam API key was registered to `localhost`, you may need to re-register it at https://steamcommunity.com/dev/apikey with the production domain.
+
 ## Architecture
 
 - **Auth** — Steam OpenID 2.0, verified server-side; session stored in an encrypted cookie via `iron-session`
