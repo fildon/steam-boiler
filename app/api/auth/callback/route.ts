@@ -4,6 +4,7 @@ import { getSession } from "@/lib/session";
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
+  console.log("[callback] invoked, url:", request.url);
   try {
     // Use the raw query string rather than URLSearchParams to avoid URLSearchParams
     // decoding '+' as a space — openid.sig is base64 and contains literal '+' characters
