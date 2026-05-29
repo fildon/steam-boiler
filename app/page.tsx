@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 
@@ -12,13 +11,13 @@ export default async function Home() {
       <p className="text-slate-400 text-lg text-center max-w-md">
         Analyse your Steam library — playtime, achievements, games, and more.
       </p>
-      <Link
+      <a
         href="/api/auth/login"
         className="flex items-center gap-3 bg-[#1b2838] hover:bg-[#2a475e] border border-slate-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
       >
         <SteamIcon />
         Sign in with Steam
-      </Link>
+      </a>
     </main>
   );
 }
