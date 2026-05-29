@@ -12,6 +12,8 @@ export interface OwnedGame {
   appid: number;
   name: string;
   playtime_forever: number; // minutes
+  playtime_2weeks?: number; // minutes, only present if played recently
+  rtime_last_played: number; // unix timestamp, 0 if never played
   img_icon_url: string;
 }
 
