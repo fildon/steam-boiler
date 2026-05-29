@@ -20,6 +20,7 @@ export default async function Dashboard() {
   const totalHours = Math.round(games.reduce((sum, g) => sum + g.playtime_forever, 0) / 60);
   const neverPlayed = games.filter((g) => g.playtime_forever === 0).length;
 
+  // eslint-disable-next-line react-hooks/purity
   const twoYearsAgo = Date.now() / 1000 - 2 * 365.25 * 24 * 3600;
   const forgottenGames = games.filter(
     (g) => g.playtime_forever >= 60 && g.rtime_last_played > 0 && g.rtime_last_played < twoYearsAgo,
