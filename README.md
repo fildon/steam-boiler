@@ -26,20 +26,47 @@ Open http://localhost:3000 and sign in with Steam.
 
 ## Deploying to Netlify
 
-The app is deployed at `steam-boiler.rupertmckay.com` via Netlify.
+The app is deployed at `steam-boiler.rupertmckay.com` via Netlify. `netlify.toml` at the repo root contains the build configuration.
 
-1. Push to GitHub and connect the repo in the Netlify dashboard
-2. Build settings are in `netlify.toml` — Netlify picks them up automatically
-3. Set these environment variables in **Netlify → Site → Environment variables**:
-   - `STEAM_API_KEY`
-   - `SESSION_SECRET`
-   - `NEXT_PUBLIC_BASE_URL` → `https://steam-boiler.rupertmckay.com`
-4. Add a custom domain in **Netlify → Site → Domain management** → add `steam-boiler.rupertmckay.com`
-5. In your DNS provider, add a `CNAME` record: `steam-boiler` → `<your-netlify-site>.netlify.app`
+### 1. Connect the repo
 
-Netlify provisions HTTPS automatically once the DNS propagates.
+Push to GitHub, then in the Netlify dashboard create a new site from that repo. Netlify will detect `netlify.toml` and configure the build automatically.
 
-> **Steam API key domain** — if your Steam API key was registered to `localhost`, you may need to re-register it at https://steamcommunity.com/dev/apikey with the production domain.
+### 2. Set environment variables
+
+In **Netlify → Site → Environment variables**, add:
+
+| Variable | Value |
+|---|---|
+| `STEAM_API_KEY` | From https://steamcommunity.com/dev/apikey |
+| `SESSION_SECRET` | Random 32+ char string — generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
+| `NEXT_PUBLIC_BASE_URL` | `https://steam-boiler.rupertmckay.com` |
+
+### 3. Add the custom domain
+
+In **Netlify → Site → Domain management**, add `steam-boiler.rupertmckay.com`.
+
+Netlify will show two DNS records to add — do both in **Squarespace → Domains → rupertmckay.com → DNS Settings**:
+
+**CNAME** — routes traffic to Netlify:
+| Field | Value |
+|---|---|
+| Type | `CNAME` |
+| Host | `steam-boiler` |
+| Data | `<your-netlify-site>.netlify.app` |
+
+**TXT** — proves domain ownership so Netlify can provision the SSL certificate:
+| Field | Value |
+|---|---|
+| Type | `TXT` |
+| Host | as shown in Netlify (e.g. `_netlify`) |
+| Data | the challenge value shown in Netlify |
+
+Once both records are saved, click **Verify** in Netlify. DNS propagation usually takes a few minutes with Squarespace. Netlify provisions HTTPS via Let's Encrypt automatically after verification.
+
+### 4. Update the Steam API key domain
+
+Steam API keys are registered to a domain. Update yours at https://steamcommunity.com/dev/apikey — change the domain to `steam-boiler.rupertmckay.com`. The key itself stays the same.
 
 ## Architecture
 
