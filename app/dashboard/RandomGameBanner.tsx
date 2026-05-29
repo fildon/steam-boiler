@@ -1,24 +1,40 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import type { OwnedGame } from "@/lib/steam-api";
 
 function pickRandom(games: OwnedGame[]): OwnedGame {
   return games[Math.floor(Math.random() * games.length)];
 }
 
+function capsuleUrl(appid: number) {
+  return `https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/capsule_184x69.jpg`;
+}
+
 export default function RandomGameBanner({ games }: { games: OwnedGame[] }) {
   const [game, setGame] = useState<OwnedGame>(() => pickRandom(games));
+  // Ref to cancel any in-flight image preload if shuffle is clicked again
+  const pendingRef = useRef<HTMLImageElement | null>(null);
 
   const shuffle = useCallback(() => {
-    setGame((current) => {
-      let next = pickRandom(games);
-      while (next.appid === current.appid && games.length > 1) {
-        next = pickRandom(games);
-      }
-      return next;
-    });
-  }, [games]);
+    let next = pickRandom(games);
+    while (next.appid === game.appid && games.length > 1) {
+      next = pickRandom(games);
+    }
+
+    // Cancel the previous preload so only the latest shuffle wins
+    if (pendingRef.current) {
+      pendingRef.current.onload = null;
+      pendingRef.current.onerror = null;
+    }
+
+    const img = new Image();
+    const settle = () => { pendingRef.current = null; setGame(next); };
+    img.onload = settle;
+    img.onerror = settle; // switch even if the image 404s
+    img.src = capsuleUrl(next.appid);
+    pendingRef.current = img;
+  }, [games, game]);
 
   const hours = (game.playtime_forever / 60).toFixed(1);
   const storeUrl = `https://store.steampowered.com/app/${game.appid}/`;
@@ -28,7 +44,7 @@ export default function RandomGameBanner({ games }: { games: OwnedGame[] }) {
       <a href={storeUrl} target="_blank" rel="noopener noreferrer" className="shrink-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={`https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/capsule_184x69.jpg`}
+          src={capsuleUrl(game.appid)}
           alt=""
           className="w-24 h-9 rounded object-cover hover:opacity-80 transition-opacity"
         />
