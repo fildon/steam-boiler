@@ -46,6 +46,8 @@ export default function RandomGameBanner({ games }: { games: OwnedGame[] }) {
         <img
           src={capsuleUrl(game.appid)}
           alt=""
+          width={184}
+          height={69}
           className="w-24 h-9 rounded object-cover hover:opacity-80 transition-opacity"
         />
       </a>
