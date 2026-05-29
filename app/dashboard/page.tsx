@@ -5,15 +5,19 @@ import { getPlayerSummary, getSteamLevel, getOwnedGames, getPlayerAchievements, 
 import { RandomGameBannerWrapper } from "./RandomGameBannerWrapper";
 import { GameTable } from "./GameTable";
 
-const ACHIEVEMENT_CONCURRENCY = 10;
+const ACHIEVEMENT_CONCURRENCY = 20;
+// Cap the number of games we fetch achievements for to avoid function timeouts.
+// Games beyond this cap show "—" in the achievements column.
+const ACHIEVEMENT_GAME_LIMIT = 100;
 
 async function fetchAllAchievements(
   steamId: string,
   appIds: number[]
 ): Promise<Record<number, AchievementStats>> {
+  const limited = appIds.slice(0, ACHIEVEMENT_GAME_LIMIT);
   const result: Record<number, AchievementStats> = {};
-  for (let i = 0; i < appIds.length; i += ACHIEVEMENT_CONCURRENCY) {
-    const batch = appIds.slice(i, i + ACHIEVEMENT_CONCURRENCY);
+  for (let i = 0; i < limited.length; i += ACHIEVEMENT_CONCURRENCY) {
+    const batch = limited.slice(i, i + ACHIEVEMENT_CONCURRENCY);
     const stats = await Promise.all(batch.map((id) => getPlayerAchievements(steamId, id)));
     batch.forEach((id, idx) => {
       if (stats[idx]) result[id] = stats[idx]!;
