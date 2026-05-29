@@ -11,7 +11,7 @@ function capsuleUrl(appid: number) {
   return `https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/capsule_184x69.jpg`;
 }
 
-export default function RandomGameBanner({ games, label = "Play something random", tooltip }: { games: OwnedGame[]; label?: string; tooltip?: string }) {
+export default function RandomGameBanner({ games, label = "Play something random" }: { games: OwnedGame[]; label?: string }) {
   const [game, setGame] = useState<OwnedGame>(() => pickRandom(games));
   // Ref to cancel any in-flight image preload if shuffle is clicked again
   const pendingRef = useRef<HTMLImageElement | null>(null);
@@ -52,17 +52,7 @@ export default function RandomGameBanner({ games, label = "Play something random
         />
       </a>
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1 mb-0.5">
-          <p className="text-xs text-slate-400 uppercase tracking-wide">{label}</p>
-          {tooltip && (
-            <span className="relative group">
-              <span className="text-xs text-slate-500 border border-slate-600 rounded-full w-4 h-4 flex items-center justify-center cursor-default select-none leading-none">?</span>
-              <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-5 w-56 rounded bg-slate-700 px-2 py-1.5 text-xs text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity z-10 normal-case tracking-normal">
-                {tooltip}
-              </span>
-            </span>
-          )}
-        </div>
+        <p className="text-xs text-slate-400 uppercase tracking-wide mb-0.5">{label}</p>
         <a
           href={storeUrl}
           target="_blank"

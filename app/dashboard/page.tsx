@@ -23,7 +23,7 @@ export default async function Dashboard() {
   // eslint-disable-next-line react-hooks/purity
   const twoYearsAgo = Date.now() / 1000 - 2 * 365.25 * 24 * 3600;
   const forgottenGames = games.filter(
-    (g) => g.playtime_forever >= 60 && g.rtime_last_played > 0 && g.rtime_last_played < twoYearsAgo,
+    (g) => g.playtime_forever >= 480 && g.rtime_last_played > 0 && g.rtime_last_played < twoYearsAgo,
   );
 
   return (
@@ -60,7 +60,7 @@ export default async function Dashboard() {
 
         {/* Forgotten games */}
         {forgottenGames.length > 0 && (
-          <RandomGameBannerWrapper games={forgottenGames} label="Blast from the past" tooltip="Games you've played for at least an hour but haven't touched in over 2 years" />
+          <RandomGameBannerWrapper games={forgottenGames} label="A game you loved in the past" />
         )}
 
         <GameTable games={games} />
