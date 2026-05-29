@@ -41,6 +41,33 @@ export async function getSteamLevel(steamId: string): Promise<number> {
   return data.response.player_level ?? 0;
 }
 
+export interface AchievementStats {
+  achieved: number;
+  total: number;
+}
+
+export async function getPlayerAchievements(
+  steamId: string,
+  appId: number
+): Promise<AchievementStats | null> {
+  try {
+    const res = await fetch(
+      `${BASE}/ISteamUserStats/GetPlayerAchievements/v1/?key=${key()}&steamid=${steamId}&appid=${appId}`,
+      { next: { revalidate: 300 } }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    const achievements: { achieved: number }[] | undefined = data.playerstats?.achievements;
+    if (!achievements?.length) return null;
+    return {
+      total: achievements.length,
+      achieved: achievements.filter((a) => a.achieved === 1).length,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function getOwnedGames(steamId: string): Promise<OwnedGame[]> {
   const res = await fetch(
     `${BASE}/IPlayerService/GetOwnedGames/v1/?key=${key()}&steamid=${steamId}&include_appinfo=true&include_played_free_games=true`,

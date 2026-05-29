@@ -1,9 +1,26 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/session";
-import { getPlayerSummary, getSteamLevel, getOwnedGames } from "@/lib/steam-api";
+import { getPlayerSummary, getSteamLevel, getOwnedGames, getPlayerAchievements, type AchievementStats } from "@/lib/steam-api";
 import { RandomGameBanner } from "./RandomGameBanner";
 import { GameTable } from "./GameTable";
+
+const ACHIEVEMENT_CONCURRENCY = 10;
+
+async function fetchAllAchievements(
+  steamId: string,
+  appIds: number[]
+): Promise<Record<number, AchievementStats>> {
+  const result: Record<number, AchievementStats> = {};
+  for (let i = 0; i < appIds.length; i += ACHIEVEMENT_CONCURRENCY) {
+    const batch = appIds.slice(i, i + ACHIEVEMENT_CONCURRENCY);
+    const stats = await Promise.all(batch.map((id) => getPlayerAchievements(steamId, id)));
+    batch.forEach((id, idx) => {
+      if (stats[idx]) result[id] = stats[idx]!;
+    });
+  }
+  return result;
+}
 
 export default async function Dashboard() {
   const session = await getSession();
@@ -16,6 +33,9 @@ export default async function Dashboard() {
   ]);
 
   if (!profile) redirect("/");
+
+  const playedAppIds = games.filter((g) => g.playtime_forever > 0).map((g) => g.appid);
+  const achievements = await fetchAllAchievements(session.steamId, playedAppIds);
 
   const totalHours = Math.round(games.reduce((sum, g) => sum + g.playtime_forever, 0) / 60);
   const neverPlayed = games.filter((g) => g.playtime_forever === 0).length;
@@ -51,7 +71,7 @@ export default async function Dashboard() {
         {/* Random game picker */}
         {games.length > 0 && <RandomGameBanner games={games} />}
 
-        <GameTable games={games} />
+        <GameTable games={games} achievements={achievements} />
       </main>
     </div>
   );
