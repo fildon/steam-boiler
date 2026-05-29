@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
+import { sealData } from "iron-session";
+import { sessionOptions, type SessionData } from "@/lib/session";
 
 export const runtime = "nodejs";
 
@@ -32,12 +33,21 @@ export async function GET(request: NextRequest) {
       return new Response(`Invalid SteamID extracted from: ${claimedId}`, { status: 400 });
     }
 
-    const session = await getSession();
-    session.steamId = steamId;
-    session.isLoggedIn = true;
-    await session.save();
-
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`);
+    // Seal the session data directly and set the cookie on the redirect response.
+    // iron-session's session.save() calls cookies().set() from next/headers, which
+    // Next.js does not reliably propagate into NextResponse.redirect() responses —
+    // the Set-Cookie header gets dropped and the session never persists.
+    const sessionData: SessionData = { steamId, isLoggedIn: true };
+    const sealed = await sealData(sessionData, { password: sessionOptions.password });
+    const response = NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`);
+    response.cookies.set(sessionOptions.cookieName, sealed, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 14, // 14 days
+      path: "/",
+    });
+    return response;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return new Response(`Callback error: ${message}`, { status: 500 });
