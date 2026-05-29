@@ -67,15 +67,22 @@ export default async function Dashboard() {
                 {sortedGames.map((game, i) => (
                   <tr key={game.appid} className="hover:bg-slate-800/50 transition-colors">
                     <td className="px-4 py-3 text-slate-500">{i + 1}</td>
-                    <td className="px-4 py-3 flex items-center gap-3">
-                      {game.img_icon_url && (
-                        <img
-                          src={`https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`}
-                          alt=""
-                          className="w-8 h-8 rounded"
-                        />
-                      )}
-                      <span>{game.name}</span>
+                    <td className="px-4 py-3">
+                      <a
+                        href={`https://store.steampowered.com/app/${game.appid}/`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 hover:text-blue-400 transition-colors"
+                      >
+                        {game.img_icon_url && (
+                          <img
+                            src={`https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`}
+                            alt=""
+                            className="w-8 h-8 rounded"
+                          />
+                        )}
+                        <span>{game.name}</span>
+                      </a>
                     </td>
                     <td className="px-4 py-3 text-right text-slate-300">
                       {game.playtime_forever === 0
