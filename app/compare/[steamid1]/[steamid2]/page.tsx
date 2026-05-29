@@ -1,5 +1,19 @@
 import Link from "next/link";
 import { getPlayerSummary, getOwnedGames, type PlayerSummary } from "@/lib/steam-api";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ steamid1: string; steamid2: string }>;
+}) {
+  const { steamid1, steamid2 } = await params;
+  const [p1, p2] = await Promise.all([getPlayerSummary(steamid1), getPlayerSummary(steamid2)]);
+  if (!p1 || !p2) return {};
+  return {
+    title: `${p1.personaname} vs ${p2.personaname} | Steam Boiler`,
+    description: `Compare Steam libraries: ${p1.personaname} and ${p2.personaname}.`,
+  };
+}
 import { computeComparison } from "@/lib/comparison";
 import { ComparisonTable } from "@/app/dashboard/compare/ComparisonTable";
 import { CompareNav } from "@/app/compare/CompareNav";

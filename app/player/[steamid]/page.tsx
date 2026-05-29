@@ -1,6 +1,20 @@
 import Link from "next/link";
 import { getPlayerSummary, getOwnedGames } from "@/lib/steam-api";
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ steamid: string }>;
+}) {
+  const { steamid } = await params;
+  const profile = await getPlayerSummary(steamid);
+  if (!profile) return {};
+  return {
+    title: `${profile.personaname} | Steam Boiler`,
+    description: `View ${profile.personaname}'s Steam library stats.`,
+  };
+}
+
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-slate-800 rounded-lg px-5 py-4">
