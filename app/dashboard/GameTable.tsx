@@ -3,13 +3,12 @@
 import { useState } from "react";
 import type { OwnedGame } from "@/lib/steam-api";
 
-type SortKey = "playtime" | "name" | "last_played";
+type SortKey = "playtime" | "last_played";
 type SortDir = "asc" | "desc";
 
 const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: "playtime", label: "Hours played" },
   { key: "last_played", label: "Recently played" },
-  { key: "name", label: "Name" },
 ];
 
 function sortGames(games: OwnedGame[], key: SortKey, dir: SortDir): OwnedGame[] {
@@ -19,8 +18,6 @@ function sortGames(games: OwnedGame[], key: SortKey, dir: SortDir): OwnedGame[] 
         return b.playtime_forever - a.playtime_forever;
       case "last_played":
         return b.rtime_last_played - a.rtime_last_played;
-      case "name":
-        return a.name.localeCompare(b.name);
     }
   });
   return dir === "asc" ? sorted.reverse() : sorted;
@@ -41,8 +38,7 @@ export function GameTable({ games }: { games: OwnedGame[] }) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     } else {
       setSortKey(key);
-      // Default direction per column
-      setSortDir(key === "name" ? "asc" : "desc");
+      setSortDir("desc");
     }
   }
 
