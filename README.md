@@ -1,8 +1,8 @@
 # Steam Boiler
 
-A web app that analyses your Steam account — playtime, achievements, library stats, and more.
+A web app that analyses your Steam account — playtime, library stats, and more.
 
-Built with Next.js 14 (App Router), TypeScript, Tailwind CSS, and the Steam Web API.
+Built with Next.js 15 (App Router), TypeScript, Tailwind CSS, and the Steam Web API.
 
 ## Setup
 
@@ -78,34 +78,6 @@ Steam API keys are registered to a domain. Update yours at https://steamcommunit
 
 ## TODO
 
-Features not yet implemented:
-
-### Achievements
-- [ ] Per-game achievement completion rates
-- [ ] Rarest achievements unlocked
-- [ ] Games with 0% vs 100% completion
-- [ ] Overall completion percentage across library
-
-### Playtime analysis
-- [ ] Playtime over time (chart)
-- [ ] Recently played games section
-- [ ] Most played by genre / category
-
-### Library analysis
-- [ ] Genre breakdown (requires SteamSpy or store scraping)
-- [ ] Estimated library value
-- [ ] Unplayed games list with "% of library never touched"
-- [ ] Tags/categories from Steam store
-
-### Friends & social
-- [ ] Friend list with levels and game counts
-- [ ] Shared games between you and a friend
-- [ ] Head-to-head playtime comparison
-
-### UX / polish
-- [ ] Loading skeletons while data fetches
-- [ ] Error handling for private profiles
-- [ ] Pagination / virtual scroll for large libraries
-- [ ] Search/filter within library table
-- [ ] Dark/light mode toggle
-- [ ] Mobile layout improvements
+- [ ] **Search / filter** — client-side text input above the game table to filter by name; toggle to hide unplayed games
+- [ ] **Forgotten games** — surface games with 60+ minutes played but not touched in 2+ years, shown as a section near the random-picker
+- [ ] **Friend comparison** — accept a second public Steam ID and show shared games, games unique to each library, and head-to-head hour counts
