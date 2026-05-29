@@ -60,7 +60,7 @@ export default async function Dashboard() {
 
         {/* Forgotten games */}
         {forgottenGames.length > 0 && (
-          <RandomGameBannerWrapper games={forgottenGames} label="Blast from the past" />
+          <RandomGameBannerWrapper games={forgottenGames} label="Blast from the past" tooltip="Games you've played for at least an hour but haven't touched in over 2 years" />
         )}
 
         <GameTable games={games} />
