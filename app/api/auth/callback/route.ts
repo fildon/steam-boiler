@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     session.isLoggedIn = true;
     await session.save();
 
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return new Response(`Callback error: ${message}`, { status: 500 });
