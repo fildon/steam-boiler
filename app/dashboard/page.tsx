@@ -1,5 +1,6 @@
+export const dynamic = "force-dynamic";
+
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { getSession } from "@/lib/session";
 import { getPlayerSummary, getSteamLevel, getOwnedGames, getPlayerAchievements, type AchievementStats } from "@/lib/steam-api";
 import { RandomGameBannerWrapper } from "./RandomGameBannerWrapper";
@@ -48,9 +49,9 @@ export default async function Dashboard() {
     <div className="min-h-screen bg-slate-900 text-white">
       <header className="border-b border-slate-700 px-6 py-4 flex items-center justify-between">
         <span className="font-bold text-lg text-white">Steam Boiler</span>
-        <Link href="/api/auth/logout" className="text-sm text-slate-400 hover:text-white transition-colors">
+        <a href="/api/auth/logout" className="text-sm text-slate-400 hover:text-white transition-colors">
           Sign out
-        </Link>
+        </a>
       </header>
 
       <main className="max-w-4xl mx-auto px-6 py-10 flex flex-col gap-10">
