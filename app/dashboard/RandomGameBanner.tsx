@@ -7,6 +7,14 @@ function pickRandom(games: OwnedGame[]): OwnedGame {
   return games[Math.floor(Math.random() * games.length)];
 }
 
+function formatLastPlayed(ts: number): string {
+  return new Date(ts * 1000).toLocaleDateString("en-GB", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 function capsuleUrl(appid: number) {
   return `https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/capsule_184x69.jpg`;
 }
@@ -62,7 +70,9 @@ export default function RandomGameBanner({ games, label = "Play something random
           {game.name}
         </a>
         <p className="text-sm text-slate-400">
-          {game.playtime_forever === 0 ? "Never played" : `${hours} hrs played`}
+          {game.playtime_forever === 0
+            ? "Never played"
+            : `${hours} hrs played · Last played ${formatLastPlayed(game.rtime_last_played)}`}
         </p>
       </div>
       <button
