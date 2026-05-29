@@ -1,6 +1,8 @@
-import { redirect } from "next/navigation";
+import { type NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+export const runtime = "nodejs";
+
+export async function GET(request: NextRequest) {
   const base = process.env.NEXT_PUBLIC_BASE_URL;
   const params = new URLSearchParams({
     "openid.ns": "http://specs.openid.net/auth/2.0",
@@ -11,5 +13,7 @@ export async function GET() {
     "openid.claimed_id": "http://specs.openid.net/auth/2.0/identifier_select",
   });
 
-  redirect(`https://steamcommunity.com/openid/login?${params}`);
+  return NextResponse.redirect(
+    `https://steamcommunity.com/openid/login?${params}`
+  );
 }

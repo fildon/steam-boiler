@@ -1,8 +1,10 @@
-import { redirect } from "next/navigation";
+import { type NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 
-export async function GET() {
+export const runtime = "nodejs";
+
+export async function GET(request: NextRequest) {
   const session = await getSession();
   session.destroy();
-  redirect("/");
+  return NextResponse.redirect(new URL("/", request.url));
 }
