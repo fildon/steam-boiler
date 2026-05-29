@@ -1,4 +1,4 @@
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { sealData } from "iron-session";
 import { sessionOptions, type SessionData } from "@/lib/session";
 
@@ -38,20 +38,6 @@ export async function GET(request: NextRequest) {
     const sessionData: SessionData = { steamId, isLoggedIn: true };
     const sealed = await sealData(sessionData, { password: sessionOptions.password, ttl: SESSION_TTL });
 
-    const sessionCookie = [
-      `${sessionOptions.cookieName}=${sealed}`,
-      `Max-Age=${SESSION_TTL}`,
-      `Path=/`,
-      `HttpOnly`,
-      `Secure`,
-      `SameSite=Lax`,
-    ].join("; ");
-
-    // Non-HttpOnly probe cookie — readable via document.cookie in the browser.
-    // If this appears in document.cookie, Set-Cookie is reaching the browser.
-    // Remove once the session persistence issue is resolved.
-    const probeCookie = `sb-probe=1; Max-Age=60; Path=/; SameSite=Lax`;
-
     const html = `<!DOCTYPE html>
 <html><head><meta charset="utf-8"></head><body>
 <pre id="out">checking cookies...</pre>
@@ -62,14 +48,28 @@ export async function GET(request: NextRequest) {
 </script>
 </body></html>`;
 
-    const headers = new Headers({
-      "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "no-store",
+    // Use NextResponse.cookies.set() — the same mechanism used by /api/debug/cookie-test
+    // which is confirmed to work. Raw headers.append("Set-Cookie", ...) on a plain
+    // Response appears to be dropped by @netlify/plugin-nextjs before reaching the browser.
+    const response = new NextResponse(html, {
+      status: 200,
+      headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" },
     });
-    headers.append("Set-Cookie", probeCookie);
-    headers.append("Set-Cookie", sessionCookie);
-
-    return new Response(html, { status: 200, headers });
+    response.cookies.set(sessionOptions.cookieName, sealed, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      maxAge: SESSION_TTL,
+      path: "/",
+    });
+    // Probe cookie mirrors /api/debug/cookie-test attributes exactly (no HttpOnly/Secure)
+    // to isolate whether HttpOnly+Secure is the remaining issue.
+    response.cookies.set("sb-probe", "nextres", {
+      maxAge: 300,
+      path: "/",
+      sameSite: "lax",
+    });
+    return response;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return new Response(`Callback error: ${message}`, { status: 500 });
