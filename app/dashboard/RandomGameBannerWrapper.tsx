@@ -18,6 +18,6 @@ const RandomGameBanner = dynamic(() => import("./RandomGameBanner"), {
   ),
 });
 
-export function RandomGameBannerWrapper({ games }: { games: OwnedGame[] }) {
-  return <RandomGameBanner games={games} />;
+export function RandomGameBannerWrapper({ games, label }: { games: OwnedGame[]; label?: string }) {
+  return <RandomGameBanner games={games} label={label} />;
 }

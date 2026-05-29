@@ -20,6 +20,11 @@ export default async function Dashboard() {
   const totalHours = Math.round(games.reduce((sum, g) => sum + g.playtime_forever, 0) / 60);
   const neverPlayed = games.filter((g) => g.playtime_forever === 0).length;
 
+  const twoYearsAgo = Date.now() / 1000 - 2 * 365.25 * 24 * 3600;
+  const forgottenGames = games.filter(
+    (g) => g.playtime_forever >= 60 && g.rtime_last_played > 0 && g.rtime_last_played < twoYearsAgo,
+  );
+
   return (
     <div className="min-h-screen bg-slate-900 text-white">
       <header className="border-b border-slate-700 px-6 py-4 flex items-center justify-between">
@@ -51,6 +56,11 @@ export default async function Dashboard() {
 
         {/* Random game picker */}
         {games.length > 0 && <RandomGameBannerWrapper games={games} />}
+
+        {/* Forgotten games */}
+        {forgottenGames.length > 0 && (
+          <RandomGameBannerWrapper games={forgottenGames} label="Blast from the past" />
+        )}
 
         <GameTable games={games} />
       </main>

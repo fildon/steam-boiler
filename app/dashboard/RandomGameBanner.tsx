@@ -11,7 +11,7 @@ function capsuleUrl(appid: number) {
   return `https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/capsule_184x69.jpg`;
 }
 
-export default function RandomGameBanner({ games }: { games: OwnedGame[] }) {
+export default function RandomGameBanner({ games, label = "Play something random" }: { games: OwnedGame[]; label?: string }) {
   const [game, setGame] = useState<OwnedGame>(() => pickRandom(games));
   // Ref to cancel any in-flight image preload if shuffle is clicked again
   const pendingRef = useRef<HTMLImageElement | null>(null);
@@ -52,7 +52,7 @@ export default function RandomGameBanner({ games }: { games: OwnedGame[] }) {
         />
       </a>
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-slate-400 uppercase tracking-wide mb-0.5">Play something random</p>
+        <p className="text-xs text-slate-400 uppercase tracking-wide mb-0.5">{label}</p>
         <a
           href={storeUrl}
           target="_blank"
