@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
-import { getPlayerSummary, getSteamLevel, getOwnedGames } from "@/lib/steam-api";
+import { getPlayerSummary, getOwnedGames } from "@/lib/steam-api";
 import { RandomGameBannerWrapper } from "./RandomGameBannerWrapper";
 import { GameTable } from "./GameTable";
 
@@ -10,9 +10,8 @@ export default async function Dashboard() {
   const session = await getSession();
   if (!session.isLoggedIn || !session.steamId) redirect("/");
 
-  const [profile, level, games] = await Promise.all([
+  const [profile, games] = await Promise.all([
     getPlayerSummary(session.steamId),
-    getSteamLevel(session.steamId),
     getOwnedGames(session.steamId),
   ]);
 
@@ -38,7 +37,7 @@ export default async function Dashboard() {
           <div>
             <h1 className="text-2xl font-bold">{profile.personaname}</h1>
             <p className="text-slate-400 text-sm mt-1">
-              Level {level} &middot; {games.length} games &middot; {totalHours.toLocaleString()} hours total
+              {games.length} games &middot; {totalHours.toLocaleString()} hours total
             </p>
           </div>
         </div>

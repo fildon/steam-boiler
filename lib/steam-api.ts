@@ -32,15 +32,6 @@ export async function getPlayerSummary(steamId: string): Promise<PlayerSummary |
   return data.response.players?.[0] ?? null;
 }
 
-export async function getSteamLevel(steamId: string): Promise<number> {
-  const res = await fetch(
-    `${BASE}/IPlayerService/GetSteamLevel/v1/?key=${key()}&steamid=${steamId}`,
-    { next: { revalidate: 60 } }
-  );
-  const data = await res.json();
-  return data.response.player_level ?? 0;
-}
-
 export async function getOwnedGames(steamId: string): Promise<OwnedGame[]> {
   const res = await fetch(
     `${BASE}/IPlayerService/GetOwnedGames/v1/?key=${key()}&steamid=${steamId}&include_appinfo=true&include_played_free_games=true`,
