@@ -18,7 +18,8 @@ export default async function Dashboard() {
   if (!profile) redirect("/");
 
   const totalHours = Math.round(games.reduce((sum, g) => sum + g.playtime_forever, 0) / 60);
-  const neverPlayed = games.filter((g) => g.playtime_forever === 0).length;
+  const unplayedGames = games.filter((g) => g.playtime_forever === 0);
+  const neverPlayed = unplayedGames.length;
 
   // eslint-disable-next-line react-hooks/purity
   const twoYearsAgo = Date.now() / 1000 - 2 * 365.25 * 24 * 3600;
@@ -68,8 +69,8 @@ export default async function Dashboard() {
           <Stat label="Never played" value={neverPlayed.toLocaleString()} />
         </div>
 
-        {/* Random game picker */}
-        {games.length > 0 && <RandomGameBannerWrapper games={games} />}
+        {/* Random unplayed game picker */}
+        {unplayedGames.length > 0 && <RandomGameBannerWrapper games={unplayedGames} label="A random game you haven't played" />}
 
         {/* Forgotten games */}
         {forgottenGames.length > 0 && (
