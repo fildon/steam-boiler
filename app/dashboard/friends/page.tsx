@@ -52,21 +52,16 @@ export default async function FriendsPage() {
 
     const profileMap = new Map(friendProfiles.map((p) => [p.steamid, p]));
 
+    const friendPlayers: RankedPlayer[] = cappedIds.flatMap((id) => {
+      const profile = profileMap.get(id);
+      if (!profile) return [];
+      const minutes = minutesMap.get(id) ?? 0;
+      return [{ steamId: id, profile, totalHours: minutes === 0 ? null : Math.round(minutes / 60), isMe: false } satisfies RankedPlayer];
+    });
+
     players = [
       { steamId: myId, profile: myProfile, totalHours: Math.round(myMinutes / 60), isMe: true },
-      ...cappedIds
-        .map((id) => {
-          const profile = profileMap.get(id);
-          if (!profile) return null;
-          const minutes = minutesMap.get(id) ?? 0;
-          return {
-            steamId: id,
-            profile,
-            totalHours: minutes === 0 ? null : Math.round(minutes / 60),
-            isMe: false,
-          } satisfies RankedPlayer;
-        })
-        .filter((p): p is RankedPlayer => p !== null),
+      ...friendPlayers,
     ];
 
     players.sort((a, b) => {
