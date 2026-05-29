@@ -60,7 +60,7 @@ export default async function ComparePage({
     profileNotFound = friendProfile === null;
   }
 
-  const comparison = validId && myProfile && friendProfile
+  const comparison = validId && myProfile && friendProfile && friendGames.length > 0
     ? computeComparison(myGames, friendGames)
     : null;
 
