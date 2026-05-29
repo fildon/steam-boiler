@@ -2,30 +2,9 @@ export const dynamic = "force-dynamic";
 
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
-import { getPlayerSummary, getSteamLevel, getOwnedGames, getPlayerAchievements, type AchievementStats } from "@/lib/steam-api";
+import { getPlayerSummary, getSteamLevel, getOwnedGames } from "@/lib/steam-api";
 import { RandomGameBannerWrapper } from "./RandomGameBannerWrapper";
 import { GameTable } from "./GameTable";
-
-const ACHIEVEMENT_CONCURRENCY = 20;
-// Cap the number of games we fetch achievements for to avoid function timeouts.
-// Games beyond this cap show "—" in the achievements column.
-const ACHIEVEMENT_GAME_LIMIT = 100;
-
-async function fetchAllAchievements(
-  steamId: string,
-  appIds: number[]
-): Promise<Record<number, AchievementStats>> {
-  const limited = appIds.slice(0, ACHIEVEMENT_GAME_LIMIT);
-  const result: Record<number, AchievementStats> = {};
-  for (let i = 0; i < limited.length; i += ACHIEVEMENT_CONCURRENCY) {
-    const batch = limited.slice(i, i + ACHIEVEMENT_CONCURRENCY);
-    const stats = await Promise.all(batch.map((id) => getPlayerAchievements(steamId, id)));
-    batch.forEach((id, idx) => {
-      if (stats[idx]) result[id] = stats[idx]!;
-    });
-  }
-  return result;
-}
 
 export default async function Dashboard() {
   const session = await getSession();
@@ -38,9 +17,6 @@ export default async function Dashboard() {
   ]);
 
   if (!profile) redirect("/");
-
-  const playedAppIds = games.filter((g) => g.playtime_forever > 0).map((g) => g.appid);
-  const achievements = await fetchAllAchievements(session.steamId, playedAppIds);
 
   const totalHours = Math.round(games.reduce((sum, g) => sum + g.playtime_forever, 0) / 60);
   const neverPlayed = games.filter((g) => g.playtime_forever === 0).length;
@@ -77,7 +53,7 @@ export default async function Dashboard() {
         {/* Random game picker */}
         {games.length > 0 && <RandomGameBannerWrapper games={games} />}
 
-        <GameTable games={games} achievements={achievements} />
+        <GameTable games={games} />
       </main>
     </div>
   );
