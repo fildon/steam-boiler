@@ -27,7 +27,8 @@ function sortGames(
       case "achievements": {
         const pctA = achievementPct(achievements[a.appid]);
         const pctB = achievementPct(achievements[b.appid]);
-        return pctB - pctA;
+        if (pctB !== pctA) return pctB - pctA;
+        return (achievements[b.appid]?.total ?? 0) - (achievements[a.appid]?.total ?? 0);
       }
     }
   });
