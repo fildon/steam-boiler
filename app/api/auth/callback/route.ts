@@ -5,16 +5,18 @@ export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
+    // Use the raw query string rather than URLSearchParams to avoid URLSearchParams
+    // decoding '+' as a space — openid.sig is base64 and contains literal '+' characters
+    // that must be preserved exactly as-is for Steam's signature verification.
+    const rawQuery = request.nextUrl.search.slice(1); // strip leading '?'
+    const verifyBody = rawQuery
+      .replace(/openid\.mode=[^&]*/, "openid.mode=check_authentication");
 
-    // Re-post all params back to Steam to verify the assertion
-    const verifyParams = new URLSearchParams();
-    searchParams.forEach((value, key) => verifyParams.set(key, value));
-    verifyParams.set("openid.mode", "check_authentication");
+    const searchParams = request.nextUrl.searchParams;
 
     const verifyRes = await fetch("https://steamcommunity.com/openid/login", {
       method: "POST",
-      body: verifyParams,
+      body: verifyBody,
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
     });
 
