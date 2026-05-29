@@ -38,36 +38,21 @@ export async function GET(request: NextRequest) {
     const sessionData: SessionData = { steamId, isLoggedIn: true };
     const sealed = await sealData(sessionData, { password: sessionOptions.password, ttl: SESSION_TTL });
 
-    const html = `<!DOCTYPE html>
-<html><head><meta charset="utf-8"></head><body>
-<pre id="out">checking cookies...</pre>
-<script>
-  document.getElementById('out').textContent =
-    'document.cookie = ' + (document.cookie || '(empty)');
-  setTimeout(function() { location.replace('/dashboard'); }, 4000);
-</script>
-</body></html>`;
-
-    // Use NextResponse.cookies.set() — the same mechanism used by /api/debug/cookie-test
-    // which is confirmed to work. Raw headers.append("Set-Cookie", ...) on a plain
-    // Response appears to be dropped by @netlify/plugin-nextjs before reaching the browser.
-    const response = new NextResponse(html, {
-      status: 200,
-      headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" },
-    });
+    // Return a 200 HTML page rather than a redirect so the Set-Cookie header lands on
+    // a non-redirect response (@netlify/plugin-nextjs drops Set-Cookie on 3xx responses).
+    // location.replace() rewrites the history entry so the URL becomes /dashboard cleanly.
+    // NextResponse.cookies.set() is required — raw Set-Cookie headers on a plain Response
+    // are also dropped by the plugin.
+    const response = new NextResponse(
+      `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><script>location.replace('/dashboard');</script></body></html>`,
+      { status: 200, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } },
+    );
     response.cookies.set(sessionOptions.cookieName, sealed, {
       httpOnly: true,
       secure: true,
       sameSite: "lax",
       maxAge: SESSION_TTL,
       path: "/",
-    });
-    // Probe cookie mirrors /api/debug/cookie-test attributes exactly (no HttpOnly/Secure)
-    // to isolate whether HttpOnly+Secure is the remaining issue.
-    response.cookies.set("sb-probe", "nextres", {
-      maxAge: 300,
-      path: "/",
-      sameSite: "lax",
     });
     return response;
   } catch (err) {
