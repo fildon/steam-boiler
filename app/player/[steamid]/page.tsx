@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { getPlayerSummary, getOwnedGames } from "@/lib/steam-api";
+import { GameTable } from "@/components/GameTable";
+import { Stat } from "@/components/Stat";
 
 export async function generateMetadata({
   params,
@@ -13,15 +15,6 @@ export async function generateMetadata({
     title: `${profile.personaname} | Steam Boiler`,
     description: `View ${profile.personaname}'s Steam library stats.`,
   };
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="bg-slate-800 rounded-lg px-5 py-4">
-      <p className="text-slate-400 text-xs uppercase tracking-wide mb-1">{label}</p>
-      <p className="text-2xl font-bold">{value}</p>
-    </div>
-  );
 }
 
 export default async function PlayerPage({
@@ -81,11 +74,15 @@ export default async function PlayerPage({
         {privateLibrary ? (
           <p className="text-slate-400">This player&apos;s game library is private.</p>
         ) : (
-          <div className="grid grid-cols-3 gap-4">
-            <Stat label="Games owned" value={games.length.toLocaleString()} />
-            <Stat label="Hours played" value={totalHours.toLocaleString()} />
-            <Stat label="Never played" value={neverPlayed.toLocaleString()} />
-          </div>
+          <>
+            <div className="grid grid-cols-3 gap-4">
+              <Stat label="Games owned" value={games.length.toLocaleString()} />
+              <Stat label="Hours played" value={totalHours.toLocaleString()} />
+              <Stat label="Never played" value={neverPlayed.toLocaleString()} />
+            </div>
+
+            <GameTable games={games} />
+          </>
         )}
 
         <div className="bg-slate-800 border border-slate-700 rounded-lg px-5 py-4 flex items-center justify-between gap-4">
