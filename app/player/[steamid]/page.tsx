@@ -64,8 +64,6 @@ export default async function PlayerPage({
       </header>
 
       <main className="max-w-4xl mx-auto px-6 py-10 flex flex-col gap-10">
-        {/* TEMP DEBUG */}
-        <p className="text-xs text-slate-600">loggedIn:{String(session.isLoggedIn)} steamId:{session.steamId ?? "none"}</p>
         <div className="flex items-center gap-5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={profile.avatarfull} alt="avatar" className="w-20 h-20 rounded-full" />
@@ -78,6 +76,13 @@ export default async function PlayerPage({
             )}
           </div>
         </div>
+
+        <CompareSection
+          steamid={steamid}
+          personaname={profile.personaname}
+          isLoggedIn={session.isLoggedIn ?? false}
+          sessionSteamId={session.steamId ?? null}
+        />
 
         {privateLibrary ? (
           <p className="text-slate-400">This player&apos;s game library is private.</p>
@@ -92,13 +97,6 @@ export default async function PlayerPage({
             <GameTable games={games} />
           </>
         )}
-
-        <CompareSection
-          steamid={steamid}
-          personaname={profile.personaname}
-          isLoggedIn={session.isLoggedIn ?? false}
-          sessionSteamId={session.steamId ?? null}
-        />
       </main>
     </div>
   );
