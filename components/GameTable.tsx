@@ -47,6 +47,8 @@ export function GameTable({ games }: { games: OwnedGame[] }) {
     }
   }
 
+  const hasLastPlayed = games.some((g) => g.rtime_last_played > 0);
+
   const sorted = sortGames(games, sortKey, sortDir);
   const filtered = sorted.filter((g) => {
     if (hideUnplayed && g.playtime_forever === 0) return false;
@@ -60,7 +62,7 @@ export function GameTable({ games }: { games: OwnedGame[] }) {
         <h2 className="text-lg font-semibold">Library</h2>
         <div className="flex items-center gap-2">
           <span className="text-xs text-slate-500 mr-1">Sort by</span>
-          {SORT_OPTIONS.map((opt) => (
+          {SORT_OPTIONS.filter((opt) => opt.key !== "last_played" || hasLastPlayed).map((opt) => (
             <button
               key={opt.key}
               onClick={() => handleSort(opt.key)}
@@ -106,7 +108,7 @@ export function GameTable({ games }: { games: OwnedGame[] }) {
               <th className="px-4 py-3 text-left w-10">#</th>
               <th className="px-4 py-3 text-left">Game</th>
               <th className="px-4 py-3 text-right">Hours</th>
-              <th className="px-4 py-3 text-right">Last played</th>
+              {hasLastPlayed && <th className="px-4 py-3 text-right">Last played</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800">
@@ -143,9 +145,11 @@ export function GameTable({ games }: { games: OwnedGame[] }) {
                       ? <span className="text-slate-600">—</span>
                       : (game.playtime_forever / 60).toFixed(1)}
                   </td>
-                  <td className="px-4 py-3 text-right text-slate-400 text-xs">
-                    {formatLastPlayed(game.rtime_last_played)}
-                  </td>
+                  {hasLastPlayed && (
+                    <td className="px-4 py-3 text-right text-slate-400 text-xs">
+                      {formatLastPlayed(game.rtime_last_played)}
+                    </td>
+                  )}
                 </tr>
               ))
             )}
