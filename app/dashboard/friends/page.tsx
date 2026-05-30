@@ -106,6 +106,7 @@ export default async function FriendsPage() {
                     <th className="px-4 py-3 text-left w-10">#</th>
                     <th className="px-4 py-3 text-left">Player</th>
                     <th className="px-4 py-3 text-right">Total hours</th>
+                    <th className="px-4 py-3 w-24"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800">
@@ -134,6 +135,16 @@ export default async function FriendsPage() {
                         {player.totalHours === null
                           ? <span className="text-slate-600">Private</span>
                           : player.totalHours.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {!player.isMe && (
+                          <a
+                            href={`/compare/${myId}/${player.steamId}`}
+                            className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                          >
+                            Compare →
+                          </a>
+                        )}
                       </td>
                     </tr>
                   ))}

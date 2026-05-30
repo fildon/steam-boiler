@@ -58,9 +58,6 @@ export default async function Dashboard() {
           <a href="/dashboard/friends" className="text-sm text-slate-400 hover:text-slate-300 transition-colors">
             Friends leaderboard →
           </a>
-          <a href="/dashboard/compare" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
-            Compare with a friend →
-          </a>
         </div>
 
         {/* Quick stats */}
