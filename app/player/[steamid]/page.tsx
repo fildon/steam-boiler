@@ -89,7 +89,7 @@ export default async function PlayerPage({
           </>
         )}
 
-        {session.isLoggedIn && session.steamId && session.steamId !== steamid && (
+        {session.isLoggedIn && session.steamId && session.steamId !== steamid ? (
           <div className="bg-slate-800 border border-slate-700 rounded-lg px-5 py-4 flex items-center justify-between gap-4">
             <p className="text-sm text-slate-300">Compare your library with {profile.personaname}</p>
             <a
@@ -99,7 +99,17 @@ export default async function PlayerPage({
               Compare →
             </a>
           </div>
-        )}
+        ) : !session.isLoggedIn ? (
+          <div className="bg-slate-800 border border-slate-700 rounded-lg px-5 py-4 flex items-center justify-between gap-4">
+            <p className="text-sm text-slate-300">Sign in to compare your library with {profile.personaname}</p>
+            <a
+              href="/api/auth/login"
+              className="shrink-0 text-sm font-medium bg-slate-600 hover:bg-slate-500 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              Sign in
+            </a>
+          </div>
+        ) : null}
       </main>
     </div>
   );
