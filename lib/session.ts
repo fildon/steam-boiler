@@ -1,5 +1,5 @@
 import { getIronSession } from "iron-session";
-import { cookies } from "next/headers";
+import { headers } from "next/headers";
 
 export interface SessionData {
   steamId?: string;
@@ -15,6 +15,9 @@ export const sessionOptions = {
 };
 
 export async function getSession() {
-  const cookieStore = await cookies();
-  return getIronSession<SessionData>(cookieStore, sessionOptions);
+  const h = await headers();
+  const cookieHeader = h.get("cookie") ?? "";
+  const req = new Request("http://n", { headers: { cookie: cookieHeader } });
+  const res = new Response();
+  return getIronSession<SessionData>(req, res, sessionOptions);
 }
