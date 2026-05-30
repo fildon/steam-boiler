@@ -23,8 +23,8 @@ function sortGames(games: OwnedGame[], key: SortKey, dir: SortDir): OwnedGame[] 
   return dir === "asc" ? sorted.reverse() : sorted;
 }
 
-function formatLastPlayed(ts: number): string {
-  if (ts === 0) return "Never";
+function formatLastPlayed(ts: number | undefined): string {
+  if (!ts) return "Never";
   return new Date(ts * 1000).toLocaleDateString("en-GB", {
     year: "numeric",
     month: "short",
