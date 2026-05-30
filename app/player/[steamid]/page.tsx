@@ -1,7 +1,9 @@
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 import Link from "next/link";
 import { getPlayerSummary, getOwnedGames } from "@/lib/steam-api";
+import { getSession } from "@/lib/session";
 import { GameTable } from "@/components/GameTable";
 import { Stat } from "@/components/Stat";
 import { CompareSection } from "@/components/CompareSection";
@@ -35,9 +37,10 @@ export default async function PlayerPage({
     );
   }
 
-  const [profile, games] = await Promise.all([
+  const [profile, games, session] = await Promise.all([
     getPlayerSummary(steamid),
     getOwnedGames(steamid),
+    getSession(),
   ]);
 
   if (!profile) {
@@ -88,7 +91,12 @@ export default async function PlayerPage({
           </>
         )}
 
-        <CompareSection steamid={steamid} personaname={profile.personaname} />
+        <CompareSection
+          steamid={steamid}
+          personaname={profile.personaname}
+          isLoggedIn={session.isLoggedIn ?? false}
+          sessionSteamId={session.steamId ?? null}
+        />
       </main>
     </div>
   );
