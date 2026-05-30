@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getPlayerSummary, getOwnedGames } from "@/lib/steam-api";
+import { getSession } from "@/lib/session";
 import { GameTable } from "@/components/GameTable";
 import { Stat } from "@/components/Stat";
 
@@ -32,9 +33,10 @@ export default async function PlayerPage({
     );
   }
 
-  const [profile, games] = await Promise.all([
+  const [profile, games, session] = await Promise.all([
     getPlayerSummary(steamid),
     getOwnedGames(steamid),
+    getSession(),
   ]);
 
   if (!profile) {
@@ -85,15 +87,17 @@ export default async function PlayerPage({
           </>
         )}
 
-        <div className="bg-slate-800 border border-slate-700 rounded-lg px-5 py-4 flex items-center justify-between gap-4">
-          <p className="text-sm text-slate-300">Compare your library with {profile.personaname}</p>
-          <a
-            href={`/dashboard/compare?steamid=${steamid}`}
-            className="shrink-0 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-          >
-            Compare →
-          </a>
-        </div>
+        {session.isLoggedIn && session.steamId && session.steamId !== steamid && (
+          <div className="bg-slate-800 border border-slate-700 rounded-lg px-5 py-4 flex items-center justify-between gap-4">
+            <p className="text-sm text-slate-300">Compare your library with {profile.personaname}</p>
+            <a
+              href={`/compare/${session.steamId}/${steamid}`}
+              className="shrink-0 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              Compare →
+            </a>
+          </div>
+        )}
       </main>
     </div>
   );
